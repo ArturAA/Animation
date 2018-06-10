@@ -1,0 +1,191 @@
+<head>
+  <title>Animation</title>
+  <style>
+  #img {
+
+  	margin-left: 0%;
+    background-image:url(main.png); /* фон */
+    background-position:0% 0%; /* позиция по умолчанию */
+    position: absolute;
+    z-index: 1;
+    margin-top: 450px;
+  }
+  #img2 {
+    width: 164px; /* ширина картинки / на количество фреймов */
+    height: 136px; /* высота */
+  	margin-left: 700px;
+    background-image:url(vagt.png); /* фон */
+    background-position:0% 0%; /* позиция по умолчанию */
+    position: absolute;
+    z-index: 3;
+    margin-top: 400px;
+    -moz-transform: scale(-1, 1);
+  -webkit-transform: scale(-1, 1);
+  -o-transform: scale(-1, 1);
+  transform: scale(-1, 1);
+  filter: FlipH;
+  -ms-filter: "FlipH";
+  }
+  #club{
+    width: 400px;
+        height: 400px;
+        margin-left: 900px;
+        z-index: 2;
+        margin-top: 180px;
+  }
+
+  .wrapper{
+    width: 1280px;
+    height: 720px;
+    border: 2px solid black;
+    margin-left: calc((100% - 1280px) / 2);
+    overflow: hidden;
+      background-image:url(background.png); /* фон */
+      display: none;
+  }
+  .dialog{
+    z-index: 4;
+    display: none;
+    width: 400px;
+    height: 200px;
+    position: absolute;
+    bottom: 400px;
+    margin-left: calc((1280px - 400px) / 2);
+    overflow: hidden;
+  }
+  .dialog-btn{
+    z-index: 5;
+    width: 128px;
+    position: absolute;
+    bottom: 20px;
+  }
+  .dialog-btn:hover{
+    cursor:pointer;
+    width: 138px;
+  }
+  .startBtn{
+    background-color: #a903bf;
+border: none;
+padding: 30px 120px 30px 120px;
+color: white;
+font-size: 70;
+border-radius: 30px;
+top: 30%;
+position: absolute;
+margin-left: calc((100% - 463px) / 2);
+display:block;
+  }
+  .startBtn:hover{
+    cursor:pointer;
+    background-color: #720082;
+  }
+  </style>
+</head>
+<body>
+  <button class="startBtn" id="start">START</button>
+  <div class="wrapper" id="wrapper">
+  <p id="img"></p>
+  <p id="img2"></p>
+  <button id="run">Run</button>
+  <button id="stop">stop</button>
+  <img src="club.png" id="club">
+
+  <div class="dialog" id="dialog-window">
+    <img src="id.png">
+     <img src="yes.png" style="left: 46px;" class="dialog-btn" onclick="dialog_end(true)">
+     <img src="no.png" style="left: 230px;" class="dialog-btn" onclick="dialog_end(false)">
+  </div>
+
+</div>
+<script>
+document.getElementById("start").onclick = function(){
+  document.getElementById("start").style.display = "none";
+  document.getElementById("wrapper").style.display = "block";
+  var audioBack = new Audio('background-music.mp3'); //создаем аудио
+  audioBack.play(); //включаем звук
+var reset = setInterval(function() {
+audioBack.play();
+}, 183600)
+}
+</script>
+<script>
+function dialog_end(answer){
+  if(answer){
+    alert("Fedt! Du fik lov til at komme ind!");
+    document.getElementById("img").style.display = "none";
+    document.getElementById("dialog-window").style.display = "none";
+
+  } else{
+    alert("Oh nej! Du er blevet afvist!:(");
+    document.getElementById("img").style.marginLeft = "0%";
+    document.getElementById("dialog-window").style.display = "none";
+    margin = 0;
+  }
+}
+var styles = {
+  width: 86,
+  height: 111
+};
+var frames = 3; // Количество кадров
+var speed = 8; // Размер одного шага
+var audio = new Audio('audio.mp3'); //создаем аудио
+var interval;
+document.getElementById("run").onclick = function(){
+  audio.play();
+  if (interval) { // чтобы при повторном клике скорость не увеличивалась в 2 раза
+   clearInterval(interval); //очистка таймера
+   interval = null; //очищаем переменную таймера
+  } //при нажатии по элементу с id run запускаем анимацию
+spriteAnimation('img', 'main.png', styles);
+}
+document.getElementById("stop").onclick = function(){ //при нажатии по элементу с id stop очищаем таймер и убираем звук.
+  clearInterval(interval);
+  audio.pause();
+}
+
+function spriteAnimation(elementId, imgName, styles) {
+  var img = document.createElement('img');
+  var offset = 0;
+  img.onload = function() {
+    var element = document.getElementById(elementId);
+    element.style.width = styles.width+'px';
+    element.style.height = styles.height+'px';
+    element.style.background = "url('" + imgName + "') " + offset + "px 50%";
+    // i - номер кадра, pos - позиция персонажа (от левого края)
+    var i = 0, pos = 0;
+    // размер одного спрайта в пикселях
+    var step = img.width / frames;
+
+    interval = setInterval(function() {
+      if(document.getElementById("img").offsetLeft - document.getElementById("club").offsetLeft > -300){ //Если расстояние между элементами меньше указаного,то убераем интрвал и аудио.
+        clearInterval(interval);
+        audio.pause();
+        document.getElementById("dialog-window").style.display = "block";
+      }
+      // i крутиться от 5 до 0
+      // пришлось пустить счетчик задом наперёд, иначе он как будто шагает назад
+      if (--i < 0) i = frames - 1;
+      offset = step * i; // offset теперь проще вычислить.
+      element.style.background = "url('" + imgName + "') " + offset + "px 50%";
+      // И еще нужно сделать чтобы персонаж двигался вперед.
+      pos += speed;
+      element.style.marginLeft = pos + 'px';
+    }, 1000 / 6)
+  }
+  img.src = imgName;
+}
+</script>
+
+<script>
+window.onload = function(){
+  var timer2; //переменная таймера
+      var frames2 = 2; //количество кадров в спрайте
+         var AbsVal2 = 0; //
+      timer2 = setInterval(() => { //создаем интервал
+        var positionBouncerBg = "-" + AbsVal2 + "00% 0%"; //изменяем переменную содержащую значение позиции
+        img2.style.backgroundPosition = positionBouncerBg; //меняем стили на наши
+        AbsVal2 = (AbsVal2 + 1) % frames2; // с помощью % ищем остаток от деления m + 1 и frames
+      }, 500) //частота обновления интервала.
+}
+</script>
+</body>
